@@ -1,21 +1,15 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System;
 using Android.Content;
-using Android.Content.Res;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Util;
 using Android.Views;
-using Java.Lang;
-using Math = System.Math;
 
 namespace DroidSeekArc
 {
 
     /**
      * 
-     * SeekArc.java
      * 
      * This is a class that functions much like a SeekBar but
      * follows a circle path instead of a straight line.
@@ -25,119 +19,223 @@ namespace DroidSeekArc
      */
     public class SeekArc : View
     {
+        #region Private Fields
 
         private const string TAG = "SeekArc";
-        private static int INVALID_PROGRESS_VALUE = -1;
+        private static readonly int InvalidProgressValue = -1;
         // The initial rotational offset -90 means we start at 12 o'clock
-        private const int mAngleOffset = -90;
+        private const int MAngleOffset = -90;
 
         /**
          * The Drawable for the seek arc thumbnail
          */
-        private Drawable mThumb;
+        private Drawable _thumb;
 
         /**
          * The Maximum value that this SeekArc can be set to
          */
-        private int mMax = 100;
+        private int _max = 100;
 
+        // Internal variables
+        private int _arcRadius;
+        private float _progressSweep;
+        private readonly RectF _arcRect = new RectF();
+        private Paint _arcPaint;
+        private Paint _progressPaint;
+        private int _translateX;
+        private int _translateY;
+        private int _thumbXPos;
+        private int _thumbYPos;
+        private double _touchAngle;
+        private float _touchIgnoreRadius;
+
+        #endregion
+
+        #region Events
+        /// <summary>
+        /// Notification that the progress level has changed. Clients can use the
+        /// fromUser parameter to distinguish user-initiated changes from those
+        /// that occurred programmatically.
+        /// 
+        /// @param seekArc
+        ///            The SeekArc whose progress has changed
+        /// @param progress
+        ///            The current progress level. This will be in the range
+        ///            0..max where max was set by
+        ///            {@link ProgressArc#setMax(int)}. (The default value for
+        ///            max is 100.)
+        /// @param fromUser
+        ///            True if the progress change was initiated by the user.
+        /// </summary>
+        public event EventHandler<SeekArcProgressChangedEventArgs> ProgressChanged;
+
+        /// <summary>
+        /// Notification that the user has started a touch gesture. Clients may
+        /// want to use this to disable advancing the seekbar.
+        /// 
+        /// @param seekArc
+        ///            The SeekArc in which the touch gesture began
+        /// </summary>
+        public event EventHandler<SeekArcTrackingTouchEventArgs> StartTrackingTouch;
+
+        /// <summary>
+        ///  
+        /// Notification that the user has finished a touch gesture. Clients may
+        /// want to use this to re-enable advancing the seekarc.
+        /// 
+        /// @param seekArc
+        ///            The SeekArc in which the touch gesture began
+        /// </summary>
+        public event EventHandler<SeekArcTrackingTouchEventArgs> StopTrackingTouch;
+        #endregion
+
+        #region Public Properties
         /**
          * The Current value that the SeekArc is set to
          */
-        private int mProgress = 0;
+        private int _progress;
+        public int Progress
+        {
+            get { return _progress; }
+            set
+            {
+                UpdateProgress(value, false);
+            }
+        }
 
         /**
          * The width of the progress line for this SeekArc
          */
-        private int mProgressWidth = 4;
+        private int _progressWidth = 4;
+        public int ProgressWidth
+        {
+            get { return _progressWidth; }
+            set
+            {
+                _progressWidth = value;
+                _progressPaint.StrokeWidth = value;
+            }
+        }
 
         /**
          * The Width of the background arc for the SeekArc 
          */
-        private int mArcWidth = 2;
+        private int _arcWidth = 2;
+        public int ArcWidth
+        {
+            get { return _arcWidth; }
+            set
+            {
+                _arcWidth = value;
+                _arcPaint.StrokeWidth = value;
+            }
+        }
 
         /**
          * The Angle to start drawing this Arc from
          */
-        private int mStartAngle = 0;
+        private int _startAngle;
+        public int StartAngle
+        {
+            get { return _startAngle; }
+            set
+            {
+                _startAngle = value;
+                UpdateThumbPosition();
+            }
+        }
 
         /**
          * The Angle through which to draw the arc (Max is 360)
          */
-        private int mSweepAngle = 360;
+        private int _sweepAngle = 360;
+        public int SweepAngle
+        {
+            get { return _sweepAngle; }
+            set
+            {
+                _sweepAngle = value;
+                UpdateThumbPosition();
+            }
+        }
 
         /**
          * The rotation of the SeekArc- 0 is twelve o'clock
          */
-        private int mRotation = 0;
+        private int _arcRotation;
+        public int ArcRotation
+        {
+            get { return _arcRotation; }
+            set
+            {
+                _arcRotation = value;
+                UpdateThumbPosition();
+            }
+        }
 
         /**
          * Give the SeekArc rounded edges
          */
-        private bool mRoundedEdges = false;
+        private bool _hasRoundedEdges;
+        public bool HasRoundedEdges
+        {
+            get { return _hasRoundedEdges; }
+            set
+            {
+                _hasRoundedEdges = value;
+                if (_hasRoundedEdges)
+                {
+                    _arcPaint.StrokeCap = Paint.Cap.Round;
+                    _progressPaint.StrokeCap = Paint.Cap.Round;
+                }
+                else
+                {
+                    _arcPaint.StrokeCap = Paint.Cap.Square;
+                    _progressPaint.StrokeCap = Paint.Cap.Square;
+                }
+            }
+        }
 
         /**
          * Enable touch inside the SeekArc
          */
-        private bool mTouchInside = true;
+        private bool _isTouchInsideEnabled = true;
+        public bool IsTouchInsideEnabled
+        {
+            get { return _isTouchInsideEnabled; }
+            set
+            {
+                _isTouchInsideEnabled = value;
+
+                var thumbHalfheight = _thumb.IntrinsicHeight / 2;
+                var thumbHalfWidth = _thumb.IntrinsicWidth / 2;
+
+                if (_isTouchInsideEnabled)
+                {
+                    _touchIgnoreRadius = (float)_arcRadius / 4;
+                }
+                else
+                {
+                    // Don't use the exact radius makes interaction too tricky
+                    _touchIgnoreRadius = _arcRadius
+                            - Math.Min(thumbHalfWidth, thumbHalfheight);
+                }
+            }
+        }
 
         /**
          * Will the progress increase clockwise or anti-clockwise
          */
-        private bool mClockwise = true;
-
-        // Internal variables
-        private int mArcRadius = 0;
-        private float mProgressSweep = 0;
-        private RectF mArcRect = new RectF();
-        private Paint mArcPaint;
-        private Paint mProgressPaint;
-        private int mTranslateX;
-        private int mTranslateY;
-        private int mThumbXPos;
-        private int mThumbYPos;
-        private double mTouchAngle;
-        private float mTouchIgnoreRadius;
-        private OnSeekArcChangeListener mOnSeekArcChangeListener;
-
-        public interface OnSeekArcChangeListener
+        private bool _clockwise = true;
+        public bool Clockwise
         {
-
-            /**
-             * Notification that the progress level has changed. Clients can use the
-             * fromUser parameter to distinguish user-initiated changes from those
-             * that occurred programmatically.
-             * 
-             * @param seekArc
-             *            The SeekArc whose progress has changed
-             * @param progress
-             *            The current progress level. This will be in the range
-             *            0..max where max was set by
-             *            {@link ProgressArc#setMax(int)}. (The default value for
-             *            max is 100.)
-             * @param fromUser
-             *            True if the progress change was initiated by the user.
-             */
-            void OnProgressChanged(SeekArc seekArc, int progress, bool fromUser);
-
-            /**
-             * Notification that the user has started a touch gesture. Clients may
-             * want to use this to disable advancing the seekbar.
-             * 
-             * @param seekArc
-             *            The SeekArc in which the touch gesture began
-             */
-            void onStartTrackingTouch(SeekArc seekArc);
-
-            /**
-             * Notification that the user has finished a touch gesture. Clients may
-             * want to use this to re-enable advancing the seekarc.
-             * 
-             * @param seekArc
-             *            The SeekArc in which the touch gesture began
-             */
-            void onStopTrackingTouch(SeekArc seekArc);
+            get { return _clockwise; }
+            set { _clockwise = value; }
         }
+
+        #endregion
+
+
 
         public SeekArc(Context context)
             : base(context)
@@ -158,6 +256,7 @@ namespace DroidSeekArc
             Init(context, attrs, defStyle);
         }
 
+
         private void Init(Context context, IAttributeSet attrs, int defStyle)
         {
 
@@ -167,47 +266,45 @@ namespace DroidSeekArc
             // Defaults, may need to link this into theme settings
             var arcColor = Resources.GetColor(Resource.Color.progress_gray);
             var progressColor = Resources.GetColor(Android.Resource.Color.HoloBlueLight);
-            int thumbHalfheight = 0;
-            int thumbHalfWidth = 0;
-            mThumb = Resources.GetDrawable(Resource.Drawable.seek_arc_control_selector);
+            _thumb = Resources.GetDrawable(Resource.Drawable.seek_arc_control_selector);
             // Convert progress width to pixels for current density
-            mProgressWidth = (int)(mProgressWidth * density);
+            _progressWidth = (int)(_progressWidth * density);
 
 
             if (attrs != null)
             {
                 // Attribute initialization
-                TypedArray a = context.ObtainStyledAttributes(attrs,
+                var a = context.ObtainStyledAttributes(attrs,
                         Resource.Styleable.SeekArc, defStyle, 0);
 
                 var thumb = a.GetDrawable(Resource.Styleable.SeekArc_thumb);
                 if (thumb != null)
                 {
-                    mThumb = thumb;
+                    _thumb = thumb;
                 }
 
 
 
-                thumbHalfheight = (int)mThumb.IntrinsicHeight / 2;
-                thumbHalfWidth = (int)mThumb.IntrinsicWidth / 2;
-                mThumb.SetBounds(-thumbHalfWidth, -thumbHalfheight, thumbHalfWidth,
+                var thumbHalfheight = (int)_thumb.IntrinsicHeight / 2;
+                var thumbHalfWidth = (int)_thumb.IntrinsicWidth / 2;
+                _thumb.SetBounds(-thumbHalfWidth, -thumbHalfheight, thumbHalfWidth,
                         thumbHalfheight);
 
-                mMax = a.GetInteger(Resource.Styleable.SeekArc_max, mMax);
-                mProgress = a.GetInteger(Resource.Styleable.SeekArc_progress, mProgress);
-                mProgressWidth = (int)a.GetDimension(
-                        Resource.Styleable.SeekArc_progressWidth, mProgressWidth);
-                mArcWidth = (int)a.GetDimension(Resource.Styleable.SeekArc_arcWidth,
-                        mArcWidth);
-                mStartAngle = a.GetInt(Resource.Styleable.SeekArc_startAngle, mStartAngle);
-                mSweepAngle = a.GetInt(Resource.Styleable.SeekArc_sweepAngle, mSweepAngle);
-                mRotation = a.GetInt(Resource.Styleable.SeekArc_rotation, mRotation);
-                mRoundedEdges = a.GetBoolean(Resource.Styleable.SeekArc_roundEdges,
-                        mRoundedEdges);
-                mTouchInside = a.GetBoolean(Resource.Styleable.SeekArc_touchInside,
-                        mTouchInside);
-                mClockwise = a.GetBoolean(Resource.Styleable.SeekArc_clockwise,
-                        mClockwise);
+                _max = a.GetInteger(Resource.Styleable.SeekArc_max, _max);
+                _progress = a.GetInteger(Resource.Styleable.SeekArc_progress, _progress);
+                _progressWidth = (int)a.GetDimension(
+                        Resource.Styleable.SeekArc_progressWidth, _progressWidth);
+                _arcWidth = (int)a.GetDimension(Resource.Styleable.SeekArc_arcWidth,
+                        _arcWidth);
+                _startAngle = a.GetInt(Resource.Styleable.SeekArc_startAngle, _startAngle);
+                _sweepAngle = a.GetInt(Resource.Styleable.SeekArc_sweepAngle, _sweepAngle);
+                _arcRotation = a.GetInt(Resource.Styleable.SeekArc_rotation, _arcRotation);
+                _hasRoundedEdges = a.GetBoolean(Resource.Styleable.SeekArc_roundEdges,
+                        _hasRoundedEdges);
+                _isTouchInsideEnabled = a.GetBoolean(Resource.Styleable.SeekArc_touchInside,
+                        _isTouchInsideEnabled);
+                _clockwise = a.GetBoolean(Resource.Styleable.SeekArc_clockwise,
+                        _clockwise);
 
                 arcColor = a.GetColor(Resource.Styleable.SeekArc_arcColor, arcColor);
                 progressColor = a.GetColor(Resource.Styleable.SeekArc_progressColor,
@@ -216,52 +313,52 @@ namespace DroidSeekArc
                 a.Recycle();
             }
 
-            mProgress = (mProgress > mMax) ? mMax : mProgress;
-            mProgress = (mProgress < 0) ? 0 : mProgress;
+            _progress = (_progress > _max) ? _max : _progress;
+            _progress = (_progress < 0) ? 0 : _progress;
 
-            mSweepAngle = (mSweepAngle > 360) ? 360 : mSweepAngle;
-            mSweepAngle = (mSweepAngle < 0) ? 0 : mSweepAngle;
+            _sweepAngle = (_sweepAngle > 360) ? 360 : _sweepAngle;
+            _sweepAngle = (_sweepAngle < 0) ? 0 : _sweepAngle;
 
-            mStartAngle = (mStartAngle > 360) ? 0 : mStartAngle;
-            mStartAngle = (mStartAngle < 0) ? 0 : mStartAngle;
+            _startAngle = (_startAngle > 360) ? 0 : _startAngle;
+            _startAngle = (_startAngle < 0) ? 0 : _startAngle;
 
-            mArcPaint = new Paint();
-            mArcPaint.Color = arcColor;
-            mArcPaint.AntiAlias = true;
-            mArcPaint.SetStyle(Paint.Style.Stroke);
-            mArcPaint.StrokeWidth = mArcWidth;
+            _arcPaint = new Paint();
+            _arcPaint.Color = arcColor;
+            _arcPaint.AntiAlias = true;
+            _arcPaint.SetStyle(Paint.Style.Stroke);
+            _arcPaint.StrokeWidth = _arcWidth;
             //mArcPaint.setAlpha(45);
 
-            mProgressPaint = new Paint();
-            mProgressPaint.Color = progressColor;
-            mProgressPaint.AntiAlias = true;
-            mProgressPaint.SetStyle(Paint.Style.Stroke);
-            mProgressPaint.StrokeWidth = mProgressWidth;
+            _progressPaint = new Paint();
+            _progressPaint.Color = progressColor;
+            _progressPaint.AntiAlias = true;
+            _progressPaint.SetStyle(Paint.Style.Stroke);
+            _progressPaint.StrokeWidth = _progressWidth;
 
-            if (mRoundedEdges)
+            if (_hasRoundedEdges)
             {
-                mArcPaint.StrokeCap = Paint.Cap.Round;
-                mProgressPaint.StrokeCap = Paint.Cap.Round;
+                _arcPaint.StrokeCap = Paint.Cap.Round;
+                _progressPaint.StrokeCap = Paint.Cap.Round;
             }
         }
 
         protected override void OnDraw(Canvas canvas)
         {
-            if (!mClockwise)
+            if (!_clockwise)
             {
-                canvas.Scale(-1, 1, mArcRect.CenterX(), mArcRect.CenterY());
+                canvas.Scale(-1, 1, _arcRect.CenterX(), _arcRect.CenterY());
             }
 
             // Draw the arcs
-            var arcStart = mStartAngle + mAngleOffset + mRotation;
-            var arcSweep = mSweepAngle;
-            canvas.DrawArc(mArcRect, arcStart, arcSweep, false, mArcPaint);
-            canvas.DrawArc(mArcRect, arcStart, mProgressSweep, false,
-                    mProgressPaint);
+            var arcStart = _startAngle + MAngleOffset + _arcRotation;
+            var arcSweep = _sweepAngle;
+            canvas.DrawArc(_arcRect, arcStart, arcSweep, false, _arcPaint);
+            canvas.DrawArc(_arcRect, arcStart, _progressSweep, false,
+                    _progressPaint);
 
             // Draw the thumb nail
-            canvas.Translate(mTranslateX - mThumbXPos, mTranslateY - mThumbYPos);
-            mThumb.Draw(canvas);
+            canvas.Translate(_translateX - _thumbXPos, _translateY - _thumbYPos);
+            _thumb.Draw(canvas);
         }
 
         private static double ConvertToRadians(double angle)
@@ -272,27 +369,27 @@ namespace DroidSeekArc
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
         {
 
-            int height = GetDefaultSize(SuggestedMinimumHeight, heightMeasureSpec);
-            int width = GetDefaultSize(SuggestedMinimumWidth, widthMeasureSpec);
-            int min = Math.Min(width, height);
+            var height = GetDefaultSize(SuggestedMinimumHeight, heightMeasureSpec);
+            var width = GetDefaultSize(SuggestedMinimumWidth, widthMeasureSpec);
+            var min = Math.Min(width, height);
             float top = 0;
             float left = 0;
-            int arcDiameter = 0;
+            var arcDiameter = 0;
 
-            mTranslateX = (int)(width * 0.5f);
-            mTranslateY = (int)(height * 0.5f);
+            _translateX = (int)(width * 0.5f);
+            _translateY = (int)(height * 0.5f);
 
             arcDiameter = min - PaddingLeft;
-            mArcRadius = arcDiameter / 2;
+            _arcRadius = arcDiameter / 2;
             top = height / 2 - (arcDiameter / 2);
             left = width / 2 - (arcDiameter / 2);
-            mArcRect.Set(left, top, left + arcDiameter, top + arcDiameter);
+            _arcRect.Set(left, top, left + arcDiameter, top + arcDiameter);
 
-            int arcStart = (int)mProgressSweep + mStartAngle + mRotation + 90;
-            mThumbXPos = (int)(mArcRadius * Math.Cos(ConvertToRadians(arcStart)));
-            mThumbYPos = (int)(mArcRadius * Math.Sin(ConvertToRadians(arcStart)));
+            var arcStart = (int)_progressSweep + _startAngle + _arcRotation + 90;
+            _thumbXPos = (int)(_arcRadius * Math.Cos(ConvertToRadians(arcStart)));
+            _thumbYPos = (int)(_arcRadius * Math.Sin(ConvertToRadians(arcStart)));
 
-            SetTouchInSide(mTouchInside);
+            IsTouchInsideEnabled = _isTouchInsideEnabled;
             base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
         }
 
@@ -325,27 +422,27 @@ namespace DroidSeekArc
         protected override void DrawableStateChanged()
         {
             base.DrawableStateChanged();
-            if (mThumb != null && mThumb.IsStateful)
+            if (_thumb != null && _thumb.IsStateful)
             {
                 var state = GetDrawableState();
-                mThumb.SetState(state);
+                _thumb.SetState(state);
             }
             Invalidate();
         }
 
         private void OnStartTrackingTouch()
         {
-            if (mOnSeekArcChangeListener != null)
+            if (StartTrackingTouch != null)
             {
-                mOnSeekArcChangeListener.onStartTrackingTouch(this);
+                StartTrackingTouch(this, new SeekArcTrackingTouchEventArgs(this));
             }
         }
 
         private void OnStopTrackingTouch()
         {
-            if (mOnSeekArcChangeListener != null)
+            if (StopTrackingTouch != null)
             {
-                mOnSeekArcChangeListener.onStopTrackingTouch(this);
+                StopTrackingTouch(this, new SeekArcTrackingTouchEventArgs(this));
             }
         }
 
@@ -358,8 +455,8 @@ namespace DroidSeekArc
             }
 
             Pressed = true;
-            mTouchAngle = GetTouchDegrees(motionEvent.GetX(), motionEvent.GetY());
-            int progress = GetProgressForAngle(mTouchAngle);
+            _touchAngle = GetTouchDegrees(motionEvent.GetX(), motionEvent.GetY());
+            int progress = GetProgressForAngle(_touchAngle);
 
             OnProgressRefresh(progress, true);
         }
@@ -367,11 +464,11 @@ namespace DroidSeekArc
         private bool ShouldIgnoreTouch(float xPos, float yPos)
         {
             var ignore = false;
-            float x = xPos - mTranslateX;
-            float y = yPos - mTranslateY;
+            float x = xPos - _translateX;
+            float y = yPos - _translateY;
 
             float touchRadius = (float)Math.Sqrt(((x * x) + (y * y)));
-            if (touchRadius < mTouchIgnoreRadius)
+            if (touchRadius < _touchIgnoreRadius)
             {
                 ignore = true;
             }
@@ -387,18 +484,18 @@ namespace DroidSeekArc
 
         private double GetTouchDegrees(float xPos, float yPos)
         {
-            float x = xPos - mTranslateX;
-            float y = yPos - mTranslateY;
+            float x = xPos - _translateX;
+            float y = yPos - _translateY;
             //invert the x-coord if we are rotating anti-clockwise
-            x = (mClockwise) ? x : -x;
+            x = (_clockwise) ? x : -x;
             // convert to arc Angle
             double angle = ConvertToDegrees(Math.Atan2(y, x) + (Math.PI / 2)
-                    - ConvertToRadians(mRotation));
+                    - ConvertToRadians(_arcRotation));
             if (angle < 0)
             {
                 angle = 360 + angle;
             }
-            angle -= mStartAngle;
+            angle -= _startAngle;
             return angle;
         }
 
@@ -406,16 +503,16 @@ namespace DroidSeekArc
         {
             var touchProgress = (int)Math.Round(ValuePerDegree() * angle);
 
-            touchProgress = (touchProgress < 0) ? INVALID_PROGRESS_VALUE
+            touchProgress = (touchProgress < 0) ? InvalidProgressValue
                     : touchProgress;
-            touchProgress = (touchProgress > mMax) ? INVALID_PROGRESS_VALUE
+            touchProgress = (touchProgress > _max) ? InvalidProgressValue
                     : touchProgress;
             return touchProgress;
         }
 
         private float ValuePerDegree()
         {
-            return (float)mMax / mSweepAngle;
+            return (float)_max / _sweepAngle;
         }
 
         private void OnProgressRefresh(int progress, bool fromUser)
@@ -425,30 +522,29 @@ namespace DroidSeekArc
 
         private void UpdateThumbPosition()
         {
-            int thumbAngle = (int)(mStartAngle + mProgressSweep + mRotation + 90);
-            mThumbXPos = (int)(mArcRadius * Math.Cos(ConvertToRadians(thumbAngle)));
-            mThumbYPos = (int)(mArcRadius * Math.Sin(ConvertToRadians(thumbAngle)));
+            int thumbAngle = (int)(_startAngle + _progressSweep + _arcRotation + 90);
+            _thumbXPos = (int)(_arcRadius * Math.Cos(ConvertToRadians(thumbAngle)));
+            _thumbYPos = (int)(_arcRadius * Math.Sin(ConvertToRadians(thumbAngle)));
         }
 
         private void UpdateProgress(int progress, bool fromUser)
         {
 
-            if (progress == INVALID_PROGRESS_VALUE)
+            if (progress == InvalidProgressValue)
             {
                 return;
             }
 
-            if (mOnSeekArcChangeListener != null)
+            if (ProgressChanged != null)
             {
-                mOnSeekArcChangeListener
-                        .OnProgressChanged(this, progress, fromUser);
+                ProgressChanged(this, new SeekArcProgressChangedEventArgs(this, progress, fromUser));
             }
 
-            progress = (progress > mMax) ? mMax : progress;
-            progress = (mProgress < 0) ? 0 : progress;
+            progress = (progress > _max) ? _max : progress;
+            progress = (_progress < 0) ? 0 : progress;
 
-            mProgress = progress;
-            mProgressSweep = (float)progress / mMax * mSweepAngle;
+            _progress = progress;
+            _progressSweep = (float)progress / _max * _sweepAngle;
 
             UpdateThumbPosition();
 
@@ -465,106 +561,10 @@ namespace DroidSeekArc
          * 
          * @see SeekArc.OnSeekBarChangeListener
          */
-        public void SetOnSeekArcChangeListener(OnSeekArcChangeListener l)
+        public void SetOnSeekArcChangeListener(IOnSeekArcChangeListener l)
         {
-            mOnSeekArcChangeListener = l;
+            _onSeekArcChangeListener = l;
         }
 
-        public void SetProgress(int progress)
-        {
-            UpdateProgress(progress, false);
-        }
-
-        public int GetProgressWidth()
-        {
-            return mProgressWidth;
-        }
-
-        public void SetProgressWidth(int progressWidth)
-        {
-            this.mProgressWidth = progressWidth;
-            mProgressPaint.StrokeWidth = progressWidth;
-        }
-
-        public int GetArcWidth()
-        {
-            return mArcWidth;
-        }
-
-        public void SetArcWidth(int mArcWidth)
-        {
-            this.mArcWidth = mArcWidth;
-            mArcPaint.StrokeWidth = mArcWidth;
-        }
-        public int GetArcRotation()
-        {
-            return mRotation;
-        }
-
-        public void SetArcRotation(int mRotation)
-        {
-            this.mRotation = mRotation;
-            UpdateThumbPosition();
-        }
-
-        public int GetStartAngle()
-        {
-            return mStartAngle;
-        }
-
-        public void SetStartAngle(int mStartAngle)
-        {
-            this.mStartAngle = mStartAngle;
-            UpdateThumbPosition();
-        }
-
-        public int GetSweepAngle()
-        {
-            return mSweepAngle;
-        }
-
-        public void SetSweepAngle(int mSweepAngle)
-        {
-            this.mSweepAngle = mSweepAngle;
-            UpdateThumbPosition();
-        }
-
-        public void SetRoundedEdges(bool isEnabled)
-        {
-            mRoundedEdges = isEnabled;
-            if (mRoundedEdges)
-            {
-                mArcPaint.StrokeCap = Paint.Cap.Round;
-                mProgressPaint.StrokeCap = Paint.Cap.Round;
-            }
-            else
-            {
-                mArcPaint.StrokeCap = Paint.Cap.Square;
-                mProgressPaint.StrokeCap = Paint.Cap.Square;
-            }
-        }
-
-        public void SetTouchInSide(bool isEnabled)
-        {
-            int thumbHalfheight = (int)mThumb.IntrinsicHeight / 2;
-            int thumbHalfWidth = (int)mThumb.IntrinsicWidth / 2;
-            mTouchInside = isEnabled;
-            if (mTouchInside)
-            {
-                mTouchIgnoreRadius = (float)mArcRadius / 4;
-            }
-            else
-            {
-                // Don't use the exact radius makes interaction too tricky
-                mTouchIgnoreRadius = mArcRadius
-                        - Math.Min(thumbHalfWidth, thumbHalfheight);
-            }
-        }
-
-        public void SetClockwise(bool isClockwise)
-        {
-            mClockwise = isClockwise;
-        }
     }
-
 }
