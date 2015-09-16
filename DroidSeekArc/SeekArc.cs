@@ -550,21 +550,5 @@ namespace DroidSeekArc
 
             Invalidate();
         }
-
-        /**
-         * Sets a listener to receive notifications of changes to the SeekArc's
-         * progress level. Also provides notifications of when the user starts and
-         * stops a touch gesture within the SeekArc.
-         * 
-         * @param l
-         *            The seek bar notification listener
-         * 
-         * @see SeekArc.OnSeekBarChangeListener
-         */
-        public void SetOnSeekArcChangeListener(IOnSeekArcChangeListener l)
-        {
-            _onSeekArcChangeListener = l;
-        }
-
     }
 }
