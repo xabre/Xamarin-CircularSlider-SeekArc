@@ -104,9 +104,9 @@
     <Content Include="Entitlements.plist" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SeekArc.Touch\SeekArc.Touch.csproj">
+    <ProjectReference Include="..\CircluarSlider.Touch\CircluarSlider.Touch.csproj">
       <Project>{6d5e9dec-ee4e-4203-bae9-d44030c7af3b}</Project>
-      <Name>SeekArc.Touch</Name>
+      <Name>CircluarSlider.Touch</Name>
       <IsAppExtension>false</IsAppExtension>
       <IsWatchApp>false</IsWatchApp>
     </ProjectReference>

@@ -1,6 +1,6 @@
 using System;
 
-namespace DroidSeekArc
+namespace SeekArc.Droid
 {
     public class SeekArcTrackingTouchEventArgs :EventArgs
     {

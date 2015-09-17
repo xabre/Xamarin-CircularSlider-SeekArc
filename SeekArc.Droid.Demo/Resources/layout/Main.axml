@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
-    <DroidSeekArc.SeekArc
+    <SeekArc.Droid.SeekArc
         android:id="@+id/seekArc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -5,7 +5,7 @@ using Android.Graphics.Drawables;
 using Android.Util;
 using Android.Views;
 
-namespace DroidSeekArc
+namespace SeekArc.Droid
 {
 
     /**

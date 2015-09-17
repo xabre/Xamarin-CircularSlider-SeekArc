@@ -9,9 +9,9 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: global::Android.Runtime.ResourceDesignerAttribute("DroidSeekArc.Resource", IsApplication=false)]
+[assembly: global::Android.Runtime.ResourceDesignerAttribute("SeekArc.Droid.Resource", IsApplication=false)]
 
-namespace DroidSeekArc
+namespace SeekArc.Droid
 {
 	
 	

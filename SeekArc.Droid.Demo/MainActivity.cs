@@ -6,9 +6,9 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 
-namespace DroidSeekArc.Demo
+namespace SeekArc.Droid.Demo
 {
-    [Activity(Label = "DroidSeekArc.Demo", MainLauncher = true, Icon = "@drawable/icon")]
+    [Activity(Label = "SeekArc.Droid.Demo", MainLauncher = true, Icon = "@drawable/icon")]
     public class MainActivity : Activity
     {
         int count = 1;

@@ -9,9 +9,9 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: global::Android.Runtime.ResourceDesignerAttribute("DroidSeekArc.Demo.Resource", IsApplication=true)]
+[assembly: global::Android.Runtime.ResourceDesignerAttribute("SeekArc.Droid.Demo.Resource", IsApplication=true)]
 
-namespace DroidSeekArc.Demo
+namespace SeekArc.Droid.Demo
 {
 	
 	
@@ -26,49 +26,49 @@ namespace DroidSeekArc.Demo
 		
 		public static void UpdateIdValues()
 		{
-			global::DroidSeekArc.Resource.Attribute.arcColor = global::DroidSeekArc.Demo.Resource.Attribute.arcColor;
-			global::DroidSeekArc.Resource.Attribute.arcWidth = global::DroidSeekArc.Demo.Resource.Attribute.arcWidth;
-			global::DroidSeekArc.Resource.Attribute.clockwise = global::DroidSeekArc.Demo.Resource.Attribute.clockwise;
-			global::DroidSeekArc.Resource.Attribute.max = global::DroidSeekArc.Demo.Resource.Attribute.max;
-			global::DroidSeekArc.Resource.Attribute.progress = global::DroidSeekArc.Demo.Resource.Attribute.progress;
-			global::DroidSeekArc.Resource.Attribute.progressColor = global::DroidSeekArc.Demo.Resource.Attribute.progressColor;
-			global::DroidSeekArc.Resource.Attribute.progressWidth = global::DroidSeekArc.Demo.Resource.Attribute.progressWidth;
-			global::DroidSeekArc.Resource.Attribute.rotation = global::DroidSeekArc.Demo.Resource.Attribute.rotation;
-			global::DroidSeekArc.Resource.Attribute.roundEdges = global::DroidSeekArc.Demo.Resource.Attribute.roundEdges;
-			global::DroidSeekArc.Resource.Attribute.seekArcStyle = global::DroidSeekArc.Demo.Resource.Attribute.seekArcStyle;
-			global::DroidSeekArc.Resource.Attribute.startAngle = global::DroidSeekArc.Demo.Resource.Attribute.startAngle;
-			global::DroidSeekArc.Resource.Attribute.sweepAngle = global::DroidSeekArc.Demo.Resource.Attribute.sweepAngle;
-			global::DroidSeekArc.Resource.Attribute.thumb = global::DroidSeekArc.Demo.Resource.Attribute.thumb;
-			global::DroidSeekArc.Resource.Attribute.thumbOffset = global::DroidSeekArc.Demo.Resource.Attribute.thumbOffset;
-			global::DroidSeekArc.Resource.Attribute.touchInside = global::DroidSeekArc.Demo.Resource.Attribute.touchInside;
-			global::DroidSeekArc.Resource.Color.progress_gray = global::DroidSeekArc.Demo.Resource.Color.progress_gray;
-			global::DroidSeekArc.Resource.Color.progress_gray_dark = global::DroidSeekArc.Demo.Resource.Color.progress_gray_dark;
-			global::DroidSeekArc.Resource.Drawable.scrubber_control_disabled_holo = global::DroidSeekArc.Demo.Resource.Drawable.scrubber_control_disabled_holo;
-			global::DroidSeekArc.Resource.Drawable.scrubber_control_focused_holo = global::DroidSeekArc.Demo.Resource.Drawable.scrubber_control_focused_holo;
-			global::DroidSeekArc.Resource.Drawable.scrubber_control_normal_holo = global::DroidSeekArc.Demo.Resource.Drawable.scrubber_control_normal_holo;
-			global::DroidSeekArc.Resource.Drawable.scrubber_control_pressed_holo = global::DroidSeekArc.Demo.Resource.Drawable.scrubber_control_pressed_holo;
-			global::DroidSeekArc.Resource.Drawable.seek_arc_control_selector = global::DroidSeekArc.Demo.Resource.Drawable.seek_arc_control_selector;
-			global::DroidSeekArc.Resource.String.ApplicationName = global::DroidSeekArc.Demo.Resource.String.ApplicationName;
-			global::DroidSeekArc.Resource.String.Hello = global::DroidSeekArc.Demo.Resource.String.Hello;
-			global::DroidSeekArc.Resource.Style.SeekArc = global::DroidSeekArc.Demo.Resource.Style.SeekArc;
-			global::DroidSeekArc.Resource.Style.SeekArcLight = global::DroidSeekArc.Demo.Resource.Style.SeekArcLight;
-			global::DroidSeekArc.Resource.Styleable.SeekArc = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc;
-			global::DroidSeekArc.Resource.Styleable.SeekArc_arcColor = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc_arcColor;
-			global::DroidSeekArc.Resource.Styleable.SeekArc_arcWidth = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc_arcWidth;
-			global::DroidSeekArc.Resource.Styleable.SeekArc_clockwise = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc_clockwise;
-			global::DroidSeekArc.Resource.Styleable.SeekArc_max = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc_max;
-			global::DroidSeekArc.Resource.Styleable.SeekArc_progress = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc_progress;
-			global::DroidSeekArc.Resource.Styleable.SeekArc_progressColor = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc_progressColor;
-			global::DroidSeekArc.Resource.Styleable.SeekArc_progressWidth = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc_progressWidth;
-			global::DroidSeekArc.Resource.Styleable.SeekArc_rotation = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc_rotation;
-			global::DroidSeekArc.Resource.Styleable.SeekArc_roundEdges = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc_roundEdges;
-			global::DroidSeekArc.Resource.Styleable.SeekArc_startAngle = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc_startAngle;
-			global::DroidSeekArc.Resource.Styleable.SeekArc_sweepAngle = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc_sweepAngle;
-			global::DroidSeekArc.Resource.Styleable.SeekArc_thumb = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc_thumb;
-			global::DroidSeekArc.Resource.Styleable.SeekArc_thumbOffset = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc_thumbOffset;
-			global::DroidSeekArc.Resource.Styleable.SeekArc_touchInside = global::DroidSeekArc.Demo.Resource.Styleable.SeekArc_touchInside;
-			global::DroidSeekArc.Resource.Styleable.SeekArcTheme = global::DroidSeekArc.Demo.Resource.Styleable.SeekArcTheme;
-			global::DroidSeekArc.Resource.Styleable.SeekArcTheme_seekArcStyle = global::DroidSeekArc.Demo.Resource.Styleable.SeekArcTheme_seekArcStyle;
+			global::SeekArc.Droid.Resource.Attribute.arcColor = global::SeekArc.Droid.Demo.Resource.Attribute.arcColor;
+			global::SeekArc.Droid.Resource.Attribute.arcWidth = global::SeekArc.Droid.Demo.Resource.Attribute.arcWidth;
+			global::SeekArc.Droid.Resource.Attribute.clockwise = global::SeekArc.Droid.Demo.Resource.Attribute.clockwise;
+			global::SeekArc.Droid.Resource.Attribute.max = global::SeekArc.Droid.Demo.Resource.Attribute.max;
+			global::SeekArc.Droid.Resource.Attribute.progress = global::SeekArc.Droid.Demo.Resource.Attribute.progress;
+			global::SeekArc.Droid.Resource.Attribute.progressColor = global::SeekArc.Droid.Demo.Resource.Attribute.progressColor;
+			global::SeekArc.Droid.Resource.Attribute.progressWidth = global::SeekArc.Droid.Demo.Resource.Attribute.progressWidth;
+			global::SeekArc.Droid.Resource.Attribute.rotation = global::SeekArc.Droid.Demo.Resource.Attribute.rotation;
+			global::SeekArc.Droid.Resource.Attribute.roundEdges = global::SeekArc.Droid.Demo.Resource.Attribute.roundEdges;
+			global::SeekArc.Droid.Resource.Attribute.seekArcStyle = global::SeekArc.Droid.Demo.Resource.Attribute.seekArcStyle;
+			global::SeekArc.Droid.Resource.Attribute.startAngle = global::SeekArc.Droid.Demo.Resource.Attribute.startAngle;
+			global::SeekArc.Droid.Resource.Attribute.sweepAngle = global::SeekArc.Droid.Demo.Resource.Attribute.sweepAngle;
+			global::SeekArc.Droid.Resource.Attribute.thumb = global::SeekArc.Droid.Demo.Resource.Attribute.thumb;
+			global::SeekArc.Droid.Resource.Attribute.thumbOffset = global::SeekArc.Droid.Demo.Resource.Attribute.thumbOffset;
+			global::SeekArc.Droid.Resource.Attribute.touchInside = global::SeekArc.Droid.Demo.Resource.Attribute.touchInside;
+			global::SeekArc.Droid.Resource.Color.progress_gray = global::SeekArc.Droid.Demo.Resource.Color.progress_gray;
+			global::SeekArc.Droid.Resource.Color.progress_gray_dark = global::SeekArc.Droid.Demo.Resource.Color.progress_gray_dark;
+			global::SeekArc.Droid.Resource.Drawable.scrubber_control_disabled_holo = global::SeekArc.Droid.Demo.Resource.Drawable.scrubber_control_disabled_holo;
+			global::SeekArc.Droid.Resource.Drawable.scrubber_control_focused_holo = global::SeekArc.Droid.Demo.Resource.Drawable.scrubber_control_focused_holo;
+			global::SeekArc.Droid.Resource.Drawable.scrubber_control_normal_holo = global::SeekArc.Droid.Demo.Resource.Drawable.scrubber_control_normal_holo;
+			global::SeekArc.Droid.Resource.Drawable.scrubber_control_pressed_holo = global::SeekArc.Droid.Demo.Resource.Drawable.scrubber_control_pressed_holo;
+			global::SeekArc.Droid.Resource.Drawable.seek_arc_control_selector = global::SeekArc.Droid.Demo.Resource.Drawable.seek_arc_control_selector;
+			global::SeekArc.Droid.Resource.String.ApplicationName = global::SeekArc.Droid.Demo.Resource.String.ApplicationName;
+			global::SeekArc.Droid.Resource.String.Hello = global::SeekArc.Droid.Demo.Resource.String.Hello;
+			global::SeekArc.Droid.Resource.Style.SeekArc = global::SeekArc.Droid.Demo.Resource.Style.SeekArc;
+			global::SeekArc.Droid.Resource.Style.SeekArcLight = global::SeekArc.Droid.Demo.Resource.Style.SeekArcLight;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc_arcColor = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc_arcColor;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc_arcWidth = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc_arcWidth;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc_clockwise = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc_clockwise;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc_max = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc_max;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc_progress = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc_progress;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc_progressColor = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc_progressColor;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc_progressWidth = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc_progressWidth;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc_rotation = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc_rotation;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc_roundEdges = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc_roundEdges;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc_startAngle = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc_startAngle;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc_sweepAngle = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc_sweepAngle;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc_thumb = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc_thumb;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc_thumbOffset = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc_thumbOffset;
+			global::SeekArc.Droid.Resource.Styleable.SeekArc_touchInside = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArc_touchInside;
+			global::SeekArc.Droid.Resource.Styleable.SeekArcTheme = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArcTheme;
+			global::SeekArc.Droid.Resource.Styleable.SeekArcTheme_seekArcStyle = global::SeekArc.Droid.Demo.Resource.Styleable.SeekArcTheme_seekArcStyle;
 		}
 		
 		public partial class Attribute
