@@ -366,6 +366,15 @@ namespace DroidSeekArc
             return (Math.PI / 180) * angle;
         }
 
+
+        public static double ConvertToDegrees(double val)
+        {
+
+            return val * (180.0 / Math.PI);
+
+        }
+
+
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
         {
 
@@ -473,13 +482,6 @@ namespace DroidSeekArc
                 ignore = true;
             }
             return ignore;
-        }
-
-        public static double ConvertToDegrees(double val)
-        {
-
-            return val * (180.0 / Math.PI);
-
         }
 
         private double GetTouchDegrees(float xPos, float yPos)
