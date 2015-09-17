@@ -5,6 +5,7 @@ using UIKit;
 
 //using System.Collections.Generic;
 //using System.Text;
+using System.Collections.Generic;
 
 namespace SeekArc.Touch
 {
@@ -63,10 +64,9 @@ namespace SeekArc.Touch
         private int _labelDisplacement;
         private int _angleFromNorth;
         private UIColor _handleColor;
-        private NSArray _innerMarkingLabels;
+		private List<string> _innerMarkingLabels;
         //private CGPoint _centerPoint;
-        private int _handleWidth;
-
+      
 
         //@implementation EFCircularSlider
 
@@ -81,7 +81,7 @@ namespace SeekArc.Touch
 
         public CircularSlider(CGRect frame)
             : base(frame)
-        {
+        {			
             InitDefaultValuesWithRadius(kFitFrameRadius);
         }
 
@@ -93,7 +93,7 @@ namespace SeekArc.Touch
         }
 
         private void InitDefaultValuesWithRadius(nfloat radius)
-        {
+        {	
             _radius = radius;
             _maximumValue = 100.0f;
             _minimumValue = 0.0f;
@@ -107,6 +107,7 @@ namespace SeekArc.Touch
             _labelDisplacement = 0;
 
             _angleFromNorth = 0;
+			_innerMarkingLabels = new List<string> ();
 
             BackgroundColor = UIColor.Clear;
         }
@@ -152,7 +153,7 @@ namespace SeekArc.Touch
             SetNeedsDisplay(); // Need to redraw with new label color
         }
 
-        public void SetInnerMarkingLabels(NSArray innerMarkingLabels)
+		public void SetInnerMarkingLabels(List<string> innerMarkingLabels)
         {
             _innerMarkingLabels = innerMarkingLabels;
             SetNeedsUpdateConstraints(); // This could affect intrinsic content size
@@ -223,7 +224,7 @@ namespace SeekArc.Touch
                     //  (constrained by smallest dimension so it fits within view)
                     var minimumDimension = Math.Min(Bounds.Size.Height, Bounds.Size.Width);
                     int halfLineWidth = (int)Math.Ceiling(_lineWidth / 2.0);
-                    int halfHandleWidth = (int)Math.Ceiling(_handleWidth / 2.0);
+					int halfHandleWidth = (int)Math.Ceiling(HandleWidth / 2.0);
                     return (nfloat)(minimumDimension * 0.5 - Math.Max(halfHandleWidth, halfLineWidth));
                 }
                 return _radius;
@@ -340,7 +341,7 @@ namespace SeekArc.Touch
                 // Total width is: diameter + (2 * MAX(halfLineWidth, halfHandleWidth))
                 int diameter = (int)(_radius * 2);
                 int halfLineWidth = (int)(Math.Ceiling(_lineWidth / 2.0));
-                int halfHandleWidth = (int)(Math.Ceiling(_handleWidth / 2.0));
+				int halfHandleWidth = (int)(Math.Ceiling(HandleWidth / 2.0));
 
                 int widthWithHandle = diameter + (2 * Math.Max(halfHandleWidth, halfLineWidth));
 
@@ -348,10 +349,10 @@ namespace SeekArc.Touch
             }
         }
 
-        public override void DrawRect(CGRect area, UIViewPrintFormatter formatter)
-        {
-            base.DrawRect(area, formatter);
-
+		public override void Draw (CGRect rect)
+		{
+			base.Draw (rect);
+		
             var ctx = UIGraphics.GetCurrentContext();
 
             // Draw the circular lines that slider handle moves along
@@ -403,7 +404,7 @@ namespace SeekArc.Touch
         {
             // Draw an unfilled circle (this shows what can be filled)
             //SetUnfilledColor(_unfilledColor);
-            _unfilledColor.SetColor();
+			_unfilledColor.SetColor();
 
             Utils.drawUnfilledCircleInContext(ctx,
                                        center: CenterPoint,
@@ -430,7 +431,7 @@ namespace SeekArc.Touch
 
             // Ensure that handle is drawn in the correct color
             //[self.handleColor set];
-            _handleColor.SetColor();
+			HandleColor.SetColor();
 
             switch (_handleType)
             {
@@ -440,7 +441,7 @@ namespace SeekArc.Touch
                     {
                         Utils.drawFilledCircleInContext(ctx,
                                                  center: handleCenter,
-                                                 radius: 0.5f * _handleWidth);
+						radius: 0.5f * HandleWidth);
                         break;
                     }
                 case CircularSliderHandleType.CircularSliderHandleTypeDoubleCircleWithClosedCenter:
@@ -506,16 +507,16 @@ namespace SeekArc.Touch
         public void DrawInnerLabels(CGContext ctx)
         {
             // Only draw labels if they have been set
-            nuint labelsCount = _innerMarkingLabels.Count;
+			var labelsCount = _innerMarkingLabels.Count;
             if (labelsCount > 0)
             {
                 //#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_7_0
-                // NSDictionary attributes = NSDictionary.FromObjectAndKey(_labelFont, UIStringAttributeKey.Font);
+                NSDictionary attributes = NSDictionary.FromObjectAndKey(_labelFont, UIStringAttributeKey.Font);
                 //#endif
-                for (nuint i = 0; i < labelsCount; i++)
+                for (var i = 0; i < labelsCount; i++)
                 {
                     // Enumerate through labels clockwise
-                    var label = _innerMarkingLabels.GetItem<NSString>(i);
+					var label = _innerMarkingLabels[i];
 
                     CGRect labelFrame = contextCoordinatesForLabelAtIndex(i);
 
@@ -532,16 +533,16 @@ namespace SeekArc.Touch
         }
 
 
-        public CGRect contextCoordinatesForLabelAtIndex(nuint index)
+        public CGRect contextCoordinatesForLabelAtIndex(int index)
         {
-            var label = _innerMarkingLabels.GetItem<NSString>(index);
+            var label = _innerMarkingLabels[index];
 
             // Determine how many degrees around the full circle this label should go
             nfloat percentageAlongCircle = (index + 1) / (nfloat)_innerMarkingLabels.Count;
             nfloat degreesFromNorthForLabel = percentageAlongCircle * 360;
             CGPoint pointOnCircle = pointOnCircleAtAngleFromNorth((nint)degreesFromNorthForLabel);
 
-            CGSize labelSize = SizeOfString(label, _labelFont);
+			CGSize labelSize = SizeOfString(new NSString(label), _labelFont);
             CGPoint offsetFromCircle = offsetFromCircleForLabelAtIndex((nint)index, labelSize);
 
             return new CGRect(pointOnCircle.X + offsetFromCircle.X, pointOnCircle.Y + offsetFromCircle.Y, labelSize.Width, labelSize.Height);
@@ -583,9 +584,9 @@ namespace SeekArc.Touch
             {
                 CGPoint bestGuessPoint = CGPoint.Empty;
                 nfloat minDist = 360;
-                nuint labelsCount = _innerMarkingLabels.Count;
+                int labelsCount = _innerMarkingLabels.Count;
 
-                for (nuint i = 0; i < labelsCount; i++)
+                for (var i = 0; i < labelsCount; i++)
                 {
                     nfloat percentageAlongCircle = i / (nfloat)labelsCount;
                     nfloat degreesForLabel = percentageAlongCircle * 360;

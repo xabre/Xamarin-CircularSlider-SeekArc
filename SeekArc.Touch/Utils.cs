@@ -46,6 +46,11 @@ namespace SeekArc.Touch
             return x * x;
         }
 
+		private static double CartesianToCompass(double rad)
+		{
+			return (rad + Math.PI / 2);
+		}
+
         private static double CompassToCartesian(double rad)
         {
             return (rad - Math.PI / 2);
@@ -53,16 +58,16 @@ namespace SeekArc.Touch
 
         public static double angleRelativeToNorthFromPoint(CGPoint fromPoint, CGPoint toPoint)
         {
-            CGPoint v = new CGPoint(toPoint.X - fromPoint.Y, toPoint.Y - fromPoint.Y);
+            CGPoint v = new CGPoint(toPoint.X - fromPoint.X, toPoint.Y - fromPoint.Y);
             var vmag = (nfloat)Math.Sqrt(SQR(v.X) + SQR(v.Y));
             v.X /= vmag;
-            v.X /= vmag;
+            v.Y /= vmag;
             var cartesianRadians = Math.Atan2(v.Y, v.X);
-            // Need to convert from cartesian style radians to compass style
-            double compassRadians = CompassToCartesian(cartesianRadians);
+		    // Need to convert from cartesian style radians to compass style
+            double compassRadians = CartesianToCompass(cartesianRadians);
             if (compassRadians < 0)
             {
-                compassRadians += (2 * Math.PI);
+                compassRadians += 2 * Math.PI;
             }
             //NSAssert(compassRadians >= 0 && compassRadians <= 2*Math.PI, @"angleRelativeToNorth should be always positive");
             return ConvertToDegrees(compassRadians);
@@ -88,8 +93,8 @@ namespace SeekArc.Touch
             // Need to adjust from 'compass' style angle to cartesian angle
             var cartesianAngle = CompassToCartesian(ConvertToRadians(angleFromNorth));
             CGPoint result = new CGPoint();
-            result.X = (nfloat)Math.Round(radius * Math.Sin(cartesianAngle));
-            result.Y = (nfloat)Math.Round(radius * Math.Cos(cartesianAngle));
+			result.X = (nfloat)Math.Round(radius * Math.Cos(cartesianAngle));
+            result.Y = (nfloat)Math.Round(radius * Math.Sin(cartesianAngle));
 
             return result;
         }
